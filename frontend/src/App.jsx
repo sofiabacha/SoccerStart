@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getCurrentMatches, getTeamSummary, searchTeam } from './api';
-import TeamSummary from "./components/TeamSummary";
+import { getCurrentMatches, getTeamSummary } from './api';
 import './App.css';
 
 function App() {
@@ -38,6 +37,9 @@ function App() {
     }
   };
 
+  const finishedMatches = matches.filter((m) => m.status === "FINISHED");
+  const upcomingMatches = matches.filter((m) => m.status !== "FINISHED" && m.status !== "CANCELLED");
+
   return (
     <div className="webpage-container">
       <header>
@@ -69,6 +71,7 @@ function App() {
             ) : (
               <p>No past matches available.</p>
             )}
+
             <h3>Upcoming Matches</h3>
               {teamSummary.upcoming_matches.length > 0 ? (
               <ul>
@@ -86,28 +89,56 @@ function App() {
               onClick={() => setTeamSummary(null)}
               className="clear-button"
             >
-              Clear Summary
+              Go back
             </button>
           </div>
         )}
 
-        <div>
-          <h2>Current Matches</h2>
-          {matches.length > 0 ? (
-            <ul>
-              {matches.map((m, i) => (
-                <li key={i}>
-                  {m.home_team} vs {m.away_team} -{' '}
-                  {m.date ? new Date(m.date).toLocaleString() : 'TBD'}{' '}
-                  {m.score_home !== null && m.score_away !== null
-                    ? `| ${m.score_home}-${m.score_away}`
-                    : ''}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No current matches available.</p>
-          )}
+        <div className="matches-grid">
+          <div className="matches-column">
+            <h2>Finished Matches</h2>
+            {finishedMatches.length > 0 ? (
+              <ul className='match-list'>
+                {finishedMatches.map((m, i) => (
+                  <li key={i} className='match-card finished'>
+                    <div className='match-teams'>
+                      {m.home_team} vs {m.away_team} 
+                    </div>
+                    <div className='match-date'>
+                      {m.date ? new Date(m.date).toLocaleString() : 'TBD'}{' '}
+                    </div>
+                    <div className='match-score'>
+                      {m.score_home !== null && m.score_away !== null
+                        ? `| ${m.score_home}-${m.score_away}`
+                        : ''}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className='no-matches'>No finished matches available.</p>
+            )}
+          </div>
+        
+          <div className='matches-column'>
+            <h2>Upcoming Matches</h2>
+              {upcomingMatches.length > 0 ? (
+                <ul className='match-list'>
+                  {upcomingMatches.map((m,i) => (
+                    <li key={i} className='match-card upcoming'>
+                      <div className='match-teams'>
+                        {m.home_team} vs {m.away_team} 
+                      </div>
+                      <div className='match-date'>
+                        {m.date ? new Date(m.date).toLocaleString() : 'TBD'}{' '}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className='no-matches'>No upcoming matches scheduled.</p>
+              )}
+          </div>
         </div>
       </main>
     </div>
